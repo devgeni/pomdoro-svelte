@@ -44,14 +44,13 @@
 </script>
 
 <svelte:head>
-	<title>Pomadorable {getTime(time)}</title>
+	<title>Pomdoro {getTime(time)}</title>
 </svelte:head>
 
 <h1>
 	{getTime(time)}
 </h1>
-<p>current: <strong>{getByKey(config, (key) => config[key].id == selected.id)[0]}</strong>, 
-	symbol: <strong>{selected.sign}</strong></p>
+<p>current: <strong>{getByKey(config, (key) => config[key].id == selected.id)[0]}</strong></p>
 {#if !isOn}
 <button on:click={startCountdown}>
 	start
@@ -74,4 +73,4 @@
 <button on:click={() => start("long")}>
 	10
 </button>
-<h2>{ history.join("") }</h2>
+<h2>{ history.join("") }{#if isOn}<span style="opacity: 0.5">{selected.sign}</span>{/if}</h2>
