@@ -7,6 +7,7 @@
 		long: { id: 3, time: 10 * 60, sign: "_" }
 	};
 
+	const sound = new Audio("media/digital-alarm.mp3");
 	
 	// state
 	let time = config.focus.time;
@@ -40,6 +41,7 @@
 		time = 0;
 		stopCountdown();
 		history = [...history, selected.sign];
+		sound.play();
 	} 
 </script>
 
