@@ -43,35 +43,37 @@
 		stopCountdown();
 		history = [...history, selected.sign];
 		sound.play();
-		strike = 'text-decoration: line-through';
+		strike = 'line-through';
 	} else {
-		strike = '';
+		strike = 'none';
 	}
+
+	$: title = (time == 0) ? "Pomdoro! Time's up!" : `Pomdoro ${getTime(time)}`;
 </script>
 
 <svelte:head>
-	<title>Pomdoro {getTime(time)}</title>
+	<title>{title}</title>
 </svelte:head>
 
 <h1>
 	{getTime(time)}
 </h1>
-<p>
-	<span style={strike}>
-		{#if selected.id != 1} 
-			It's
-		{:else} 
-			You should 
-		{/if}
-		<strong>{getByKey(config, (key) => config[key].id == selected.id)[0]}</strong>
-		{#if selected.id != 1} 
-			break now
-		{/if}
-	</span>
-	{#if time == 0}
-		Your time is up!
+<p style="text-decoration: {strike};">
+	{#if selected.id != 1} 
+		It's
+	{:else} 
+		You should 
+	{/if}
+	<strong>{getByKey(config, (key) => config[key].id == selected.id)[0]}</strong>
+	{#if selected.id != 1} 
+		break now
 	{/if}
 </p>
+
+{#if time == 0}
+	<h3>Your time is up!</h3>
+{/if}
+
 {#if !isOn}
 <button on:click={startCountdown}>
 	start
@@ -86,14 +88,21 @@
 </button>
 <br/>
 <button on:click={() => start("focus")}>
-	20
+	20 min.
 </button>
 <button on:click={() => start("short")}>
-	5
+	5 min.
 </button>
 <button on:click={() => start("long")}>
-	10
+	10 min.
 </button>
+<p>
+	<strong>Legend:</strong> <br>
+	&nbsp;&nbsp; <strong>o</strong> &emsp; focus time <br>
+	&nbsp;&nbsp; <strong>|</strong> &emsp; short break <br>
+	&nbsp;&nbsp; <strong>_</strong> &emsp; long break
+</p>
 <h2>
+	{#if history.length || isOn}done: <br>{/if}
 	{ history.join("") }{#if isOn}<span style="opacity: 0.5">{selected.sign}</span>{/if}
 </h2>
