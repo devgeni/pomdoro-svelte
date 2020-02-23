@@ -15,7 +15,8 @@
 	let isOn = false;
 	let intervalId = null;
 	let history = [];
-	
+	let strike = '';
+
 	const startCountdown = () => {
 		clearInterval(intervalId);
 		intervalId = setInterval(() => {
@@ -42,7 +43,10 @@
 		stopCountdown();
 		history = [...history, selected.sign];
 		sound.play();
-	} 
+		strike = 'text-decoration: line-through';
+	} else {
+		strike = '';
+	}
 </script>
 
 <svelte:head>
@@ -52,7 +56,22 @@
 <h1>
 	{getTime(time)}
 </h1>
-<p>current: <strong>{getByKey(config, (key) => config[key].id == selected.id)[0]}</strong></p>
+<p>
+	<span style={strike}>
+		{#if selected.id != 1} 
+			It's
+		{:else} 
+			You should 
+		{/if}
+		<strong>{getByKey(config, (key) => config[key].id == selected.id)[0]}</strong>
+		{#if selected.id != 1} 
+			break now
+		{/if}
+	</span>
+	{#if time == 0}
+		Your time is up!
+	{/if}
+</p>
 {#if !isOn}
 <button on:click={startCountdown}>
 	start
@@ -75,4 +94,6 @@
 <button on:click={() => start("long")}>
 	10
 </button>
-<h2>{ history.join("") }{#if isOn}<span style="opacity: 0.5">{selected.sign}</span>{/if}</h2>
+<h2>
+	{ history.join("") }{#if isOn}<span style="opacity: 0.5">{selected.sign}</span>{/if}
+</h2>
