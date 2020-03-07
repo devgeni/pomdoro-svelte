@@ -16,6 +16,7 @@
 	let intervalId = null;
 	let history = [];
 	let strike = '';
+	let volume = 50;
 
 	const startCountdown = () => {
 		clearInterval(intervalId);
@@ -37,6 +38,18 @@
 		stopCountdown(); 
 		time = selected.time;
 	};
+
+	const incrementVolume = () => {
+		volume = volume >= 100 ? 100 : volume + 10;
+	};
+
+	const decrementVolume = () => {
+		volume = volume <= 0 ? 0 : volume - 10;
+	};
+
+	$: {
+		sound.volume = volume / 100;
+	}
 	
 	$: if (time <= 0) {
 		time = 0;
@@ -96,6 +109,16 @@
 <button on:click={() => start("long")}>
 	10 min.
 </button>
+
+<fieldset>
+	<legend>Sound volume {volume}</legend>
+	0 <input type="range" bind:value={volume} step="10">100
+	<br>
+	<br>
+	<button on:click={decrementVolume}>-</button>
+	<button on:click={incrementVolume}>+</button>
+</fieldset>
+
 <p>
 	<strong>Legend:</strong> <br>
 	&nbsp;&nbsp; <strong>o</strong> &emsp; focus time <br>
@@ -106,3 +129,13 @@
 	{#if history.length || isOn}done: <br>{/if}
 	{ history.join("") }{#if isOn}<span style="opacity: 0.5">{selected.sign}</span>{/if}
 </h2>
+
+<style>
+	button {
+		min-width: 40px;
+	}
+	fieldset {
+		margin-bottom: 16px;
+		max-width: 360px;
+	}
+</style>
