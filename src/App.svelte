@@ -82,10 +82,11 @@
 </svelte:head>
 
 <div class="app">
-	<h1>
+	<h1 class="countdown">
 		{getTime(time)}
 	</h1>
-	<p style="text-decoration: { (time <= 0) ? 'line-through' : 'none' };">
+	<h3 class:invisible={time !== 0} class="text-center font-bold">Your time is up!</h3>
+	<p class="hint" style="text-decoration: { (time <= 0) ? 'line-through' : 'none' };">
 		{#if selected.id != 1} 
 			It's
 		{:else} 
@@ -97,32 +98,33 @@
 		{/if}
 	</p>
 
-	{#if time == 0}
-		<h3>Your time is up!</h3>
-	{/if}
-
-	{#if !isOn}
-	<button on:click={startCountdown}>
-		start
-	</button>
-	{:else}
-	<button on:click={stopCountdown}>
-		pause
-	</button>
-	{/if}
-	<button on:click={reset}>
-		reset
-	</button>
-	<br/>
-	<button on:click={() => start("focus")}>
-		20 min.
-	</button>
-	<button on:click={() => start("short")}>
-		5 min.
-	</button>
-	<button on:click={() => start("long")}>
-		10 min.
-	</button>
+	<div class="mb-5">
+		<div class="flex justify-center mb-6">
+			{#if !isOn}
+			<button on:click={startCountdown}>
+				start
+			</button>
+			{:else}
+			<button on:click={stopCountdown}>
+				pause
+			</button>
+			{/if}
+			<button class="ml-6" on:click={reset}>
+				reset
+			</button>
+		</div>
+		<div class="flex justify-between">
+			<button class:button-selected={selected.id === 1}  on:click={() => start("focus")}>
+				20 min.
+			</button>
+			<button class:button-selected={selected.id === 2} on:click={() => start("short")}>
+				5 min.
+			</button>
+			<button class:button-selected={selected.id === 3} on:click={() => start("long")}>
+				10 min.
+			</button>
+		</div>
+	</div>
 
 	<fieldset>
 		<legend>Sound volume {volume}</legend>
@@ -147,8 +149,27 @@
 	
 <style>
 	button {
+		outline: 0;
+		border: 0;
+		border-radius: 16px;
 		min-width: 40px;
+		padding: 10px 20px;
+		font: 400 16px "SF Pro Display", sans-serif;
+		color: #334669;
+		background: #E4F0FA;
+		box-shadow: 19px 21px 50px rgba(176, 195, 210, 0.727846), -8px 0px 8px rgba(244, 248, 251, 0.50254), -8px -40px 22px rgba(246, 251, 255, 0.384288), -11px -11px 20px rgba(255, 255, 255, 0.272044), inset 1px 1px 0px rgba(255, 255, 255, 0.5);
 	}
+
+	button:active {
+		background: #DDECF9;
+	}
+
+	.button-selected {
+		color: #6E81A0;
+		background: #E3EDF7;
+		box-shadow: inset 0px 1.96396px 3.92793px #C8D4E2, inset 3.92793px 1.96396px 5.89189px #B1C5D5, inset 2.94595px 5.89189px 5.89189px #C3D7E7, inset -5.89189px -2.94595px 4.90991px rgba(255, 255, 255, 0.750601);
+	}
+
 	fieldset {
 		margin-bottom: 16px;
 		max-width: 360px;
@@ -156,13 +177,27 @@
 
 	.app {
 		box-sizing: border-box;
-		border-radius: 24px;
+		border-radius: 30px;
 		margin: 56px auto;
 		max-width: 360px;
 		min-height: 640px;
 		padding: 24px;
-		background: #f4f4f4;
-		box-shadow: 56px 56px 72px rgba(100, 100, 100, 0.2);
+		background: #E4F0FA;
+		box-shadow: 50px 80px 80px rgba(0, 0, 0, 0.18);
+	}
+
+	.countdown {
+		margin-bottom: 14px;
+		font: 900 28px "SF Pro Display", sans-serif;
+		text-align: center;
+		color: #334669;
+	}
+
+	.hint {
+		margin-bottom: 36px;
+		font: 100 16px/1.3 "SF Pro Display", sans-serif;
+		text-align: center;
+		color: #334669;
 	}
 
 </style>
