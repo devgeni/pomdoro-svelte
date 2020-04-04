@@ -58,10 +58,6 @@
 	const decrementVolume = () => {
 		volume = volume <= 0 ? 0 : volume - 10;
 	};
-
-	$: {
-		sound.volume = volume / 100;
-	}
 	
 	$: if (time <= 0) {
 		time = 0;
@@ -74,7 +70,9 @@
 		playSound();
 	}
 
+	$: sound.volume = volume / 100;
 	$: title = (time == 0) ? "Pomdoro! Time's up!" : `Pomdoro ${getTime(time)}`;
+	$: volumeHandle = (volume == 0 || volume == 100) ? `volume-handle-${volume}` : '';
 </script>
 
 <svelte:head>
@@ -113,7 +111,7 @@
 				reset
 			</button>
 		</div>
-		<div class="flex justify-between">
+		<div class="flex justify-between mb-6">
 			<button class:button-selected={selected.id === 1}  on:click={() => start("focus")}>
 				20 min.
 			</button>
@@ -126,13 +124,24 @@
 		</div>
 	</div>
 
-	<fieldset>
-		<legend>Sound volume {volume}</legend>
+	<p class="volume-text">Sound volume:</p>
+	
+	<div class="volume">
+		<div class="volume-progress" style="width: {volume}%">
+			<div class="volume-handle {volumeHandle}">
+			{volume}</div>
+		</div>
+	</div>
+
+	<div class="flex justify-center mt-6">
+		<button on:click={decrementVolume}>-</button>
+		<button class="ml-6" on:click={incrementVolume}>+</button>
+	</div>
+
+	<fieldset style="display: none;">
 		0 <input type="range" bind:value={volume} step="10">100
 		<br>
 		<br>
-		<button on:click={decrementVolume}>-</button>
-		<button on:click={incrementVolume}>+</button>
 	</fieldset>
 
 	<p>
@@ -146,58 +155,3 @@
 		{ history.join("") }{#if isOn}<span style="opacity: 0.5">{selected.sign}</span>{/if}
 	</h2>
 </div>
-	
-<style>
-	button {
-		outline: 0;
-		border: 0;
-		border-radius: 16px;
-		min-width: 40px;
-		padding: 10px 20px;
-		font: 400 16px "SF Pro Display", sans-serif;
-		color: #334669;
-		background: #E4F0FA;
-		box-shadow: 19px 21px 50px rgba(176, 195, 210, 0.727846), -8px 0px 8px rgba(244, 248, 251, 0.50254), -8px -40px 22px rgba(246, 251, 255, 0.384288), -11px -11px 20px rgba(255, 255, 255, 0.272044), inset 1px 1px 0px rgba(255, 255, 255, 0.5);
-	}
-
-	button:active {
-		background: #DDECF9;
-	}
-
-	.button-selected {
-		color: #6E81A0;
-		background: #E3EDF7;
-		box-shadow: inset 0px 1.96396px 3.92793px #C8D4E2, inset 3.92793px 1.96396px 5.89189px #B1C5D5, inset 2.94595px 5.89189px 5.89189px #C3D7E7, inset -5.89189px -2.94595px 4.90991px rgba(255, 255, 255, 0.750601);
-	}
-
-	fieldset {
-		margin-bottom: 16px;
-		max-width: 360px;
-	}
-
-	.app {
-		box-sizing: border-box;
-		border-radius: 30px;
-		margin: 56px auto;
-		max-width: 360px;
-		min-height: 640px;
-		padding: 24px;
-		background: #E4F0FA;
-		box-shadow: 50px 80px 80px rgba(0, 0, 0, 0.18);
-	}
-
-	.countdown {
-		margin-bottom: 14px;
-		font: 900 28px "SF Pro Display", sans-serif;
-		text-align: center;
-		color: #334669;
-	}
-
-	.hint {
-		margin-bottom: 36px;
-		font: 100 16px/1.3 "SF Pro Display", sans-serif;
-		text-align: center;
-		color: #334669;
-	}
-
-</style>
