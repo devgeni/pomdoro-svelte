@@ -1,4 +1,5 @@
 <script>
+	import { onMount } from "svelte";
 	import { padNum, getSeconds, getMinutes, getTime, getByKey } from "./helpers";
 
 	const config = {
@@ -21,6 +22,10 @@
 	let history = [];
 	let strike = '';
 	let volume = 50;
+
+	let draggable;
+	let volumeContainerRef;
+	let volumeHandleRef;
 
 	const playSound = () => sound.play();
 	
@@ -51,12 +56,42 @@
 		time = selected.time;
 	};
 
+	const getVolumeStartEndSize = () => {
+		const start = volumeContainerRef.getBoundingClientRect().left;
+		const end = volumeContainerRef.getBoundingClientRect().right;
+		const size = end - start;
+		return { start, end, size };
+	};
+
+	const getHandleWidth = () => volumeHandleRef.clientWidth;
+
+	const getVolumeDifference = (volume) => {
+		const difference = (Math.ceil(volume / 10) * 10) - volume;
+		return difference > 0 ? difference : 10;
+	};
+
+	const calculateDraggableLeft = (volume) => {
+		const { start, end, size } = getVolumeStartEndSize();
+		const handleHalf = getHandleWidth() / 2;
+		const left = (volume * size / 100) + start - handleHalf;
+		return left;
+	};
+
 	const incrementVolume = () => {
-		volume = volume >= 100 ? 100 : volume + 10;
+		if (volume >= 100) return;
+
+		volume += getVolumeDifference(volume);
+
+		draggable.left = calculateDraggableLeft(volume);
 	};
 
 	const decrementVolume = () => {
-		volume = volume <= 0 ? 0 : volume - 10;
+		if (volume <= 0) return;
+
+		const difference = getVolumeDifference(volume);
+		volume -= difference < 10 ? 10 - difference : 10;
+		
+		draggable.left = calculateDraggableLeft(volume);
 	};
 	
 	$: if (time <= 0) {
@@ -72,7 +107,20 @@
 
 	$: sound.volume = volume / 100;
 	$: title = (time == 0) ? "Pomdoro! Time's up!" : `Pomdoro ${getTime(time)}`;
-	$: volumeHandle = (volume == 0 || volume == 100) ? `volume-handle-${volume}` : '';
+	// $: volumeHandle = (volume == 0 || volume == 100) ? `volume-handle-${volume}` : '';
+
+	onMount(() => {
+		const { start, end } = getVolumeStartEndSize();
+		const handleWidth = getHandleWidth();
+
+		draggable = new PlainDraggable(volumeHandleRef, {
+			containment: volumeContainerRef,
+			onMove: ({ left }) => {
+				const one = ((left - start) / (end - start - handleWidth)) * 100;
+				volume = Math.floor(one);
+			}
+		});
+	});
 </script>
 
 <svelte:head>
@@ -126,9 +174,9 @@
 
 	<p class="volume-text">Sound volume:</p>
 	
-	<div class="volume">
+	<div class="volume" bind:this={volumeContainerRef}>
 		<div class="volume-progress" style="width: {volume}%">
-			<div class="volume-handle {volumeHandle}">
+			<div class="volume-handle" bind:this={volumeHandleRef}>
 			{volume}</div>
 		</div>
 	</div>
@@ -150,7 +198,7 @@
 		&nbsp;&nbsp; <strong>|</strong> &emsp; short break <br>
 		&nbsp;&nbsp; <strong>_</strong> &emsp; long break
 	</p>
-	<h2>
+	<h2 class="break-words">
 		{#if history.length || isOn}done: <br>{/if}
 		{ history.join("") }{#if isOn}<span style="opacity: 0.5">{selected.sign}</span>{/if}
 	</h2>
